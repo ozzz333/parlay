@@ -10,7 +10,7 @@ const coinSymbols = {
 };
 
 const CORRELATION_DISCOUNT = 0.9; // 10% odds reduction
-const RECEIVER_WALLET = "DBKeAEYTVNDEB3xQpdVUQak64AXfLguQkG4dq9vjx5LC"; // ⚡ Set your address here
+const RECEIVER_WALLET = "DBKeAEYTVNDEB3xQpdVUQak64AXfLguQkG4dq9vjx5LC"; // ⚡ Replace with your wallet
 const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'), 'confirmed');
 
 let livePrices = {};
@@ -53,6 +53,22 @@ function showSuccessModal(signature) {
     }, 5000);
 }
 
+function showErrorModal(message) {
+    loadingSpinner.classList.add('hidden');
+    modalTitle.innerText = "❌ Bet Failed!";
+    modalMessage.innerText = message;
+    txIdElement.innerText = "";
+    explorerLink.classList.add('hidden');
+    copyTxButton.classList.add('hidden');
+
+    modal.classList.add('show');
+    modal.classList.remove('hidden');
+
+    setTimeout(() => {
+        closeSuccessModal();
+    }, 5000);
+}
+
 function closeSuccessModal() {
     modal.classList.remove('show');
     modal.classList.add('hidden');
@@ -67,7 +83,7 @@ copyTxButton.addEventListener('click', () => {
     }, 2000);
 });
 
-// Fetch live prices
+// Fetch prices
 async function fetchPrices() {
     try {
         const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin,cardano,dogecoin&vs_currencies=usd');
@@ -83,10 +99,11 @@ async function fetchPrices() {
         buildEventInputs();
     } catch (error) {
         console.error("Error fetching prices:", error);
+        showErrorModal("Failed to load prices.");
     }
 }
 
-// Build inputs
+// Build event inputs
 function buildEventInputs() {
     const eventsDiv = document.getElementById('events');
     eventsDiv.innerHTML = "";
@@ -124,12 +141,11 @@ function calculateOdds(currentPrice, targetPrice, timeframe) {
     return Math.max(1.5, Math.min(baseOdds * multiplier, 50));
 }
 
-// Dynamic margin based on asset size and timeframe
+// Margin calculation
 function getMarginForAssetAndTimeframe(symbol, timeframe) {
-    let baseMargin = 0.005; // BTC base 0.5%
+    let baseMargin = 0.005;
 
     let marketCapMultiplier = 1.0;
-
     switch (symbol) {
         case "BTC": marketCapMultiplier = 1.0; break;
         case "ETH": marketCapMultiplier = 1.2; break;
@@ -142,7 +158,7 @@ function getMarginForAssetAndTimeframe(symbol, timeframe) {
 
     let margin = baseMargin * marketCapMultiplier;
 
-    switch(timeframe) {
+    switch (timeframe) {
         case "1 Day": return margin * 0.7;
         case "3 Days": return margin * 0.85;
         case "7 Days": return margin;
@@ -151,7 +167,7 @@ function getMarginForAssetAndTimeframe(symbol, timeframe) {
     }
 }
 
-// Confirm Bet logic
+// Confirm Bet
 document.getElementById('confirm-bet').addEventListener('click', async () => {
     let selectedEvents = [];
     const timeframe = document.getElementById('global-timeframe').value;
@@ -189,7 +205,6 @@ document.getElementById('confirm-bet').addEventListener('click', async () => {
 
     const betAmount = parseFloat(document.getElementById('bet-amount').value) || 0;
     const combinedOdds = selectedEvents.reduce((total, e) => total * e.odds, 1);
-
     const adjustedOdds = combinedOdds * CORRELATION_DISCOUNT;
     const potentialPayout = betAmount * adjustedOdds;
 
@@ -198,10 +213,7 @@ document.getElementById('confirm-bet').addEventListener('click', async () => {
         <ul>
             ${selectedEvents.map(e => `
                 <li>
-                    ${e.coin} between 
-                    <strong>$${e.lowerBound.toFixed(2)}</strong> - 
-                    <strong>$${e.upperBound.toFixed(2)}</strong> 
-                    (±${(e.margin * 100).toFixed(2)}%) — <strong>${e.odds.toFixed(2)}x</strong>
+                    ${e.coin} between <strong>$${e.lowerBound.toFixed(2)}</strong> - <strong>$${e.upperBound.toFixed(2)}</strong> (±${(e.margin * 100).toFixed(2)}%) — <strong>${e.odds.toFixed(2)}x</strong>
                 </li>
             `).join('')}
         </ul>
@@ -211,12 +223,12 @@ document.getElementById('confirm-bet').addEventListener('click', async () => {
 
     document.getElementById('potential-payout').innerHTML = `<h4>Potential Payout: $${potentialPayout.toFixed(2)}</h4>`;
 
-    // 🔥 New: Transaction
+    // Start transaction
     const parlaySummary = selectedEvents.map(e => `${e.coin}:${e.target}`).join(', ') + ` | ${timeframe}`;
     await placeBetTransaction(parlaySummary);
 });
 
-// Place the bet transaction
+// Transaction
 async function placeBetTransaction(parlaySummary) {
     if (window.solana && window.solana.isPhantom) {
         try {
@@ -248,11 +260,10 @@ async function placeBetTransaction(parlaySummary) {
 
         } catch (err) {
             console.error('Transaction failed:', err);
-            alert('❌ Bet failed or rejected.');
-            closeSuccessModal();
+            showErrorModal("Transaction failed or rejected.");
         }
     } else {
-        alert('Phantom Wallet not found.');
+        showErrorModal("Phantom Wallet not found.");
     }
 }
 
@@ -266,9 +277,9 @@ document.getElementById('connect-wallet').addEventListener('click', async () => 
             console.error('Wallet connection rejected.');
         }
     } else {
-        alert('Phantom Wallet not found.');
+        showErrorModal("Phantom Wallet not found.");
     }
 });
 
-// Init app
+// Init
 fetchPrices();
