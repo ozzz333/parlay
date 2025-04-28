@@ -18,19 +18,23 @@
         </nav>
     </header>
 
-    <main>
-        <section class="hero">
-            <h2>Build Your Crypto Parlay</h2>
-            <p>Set your custom price targets and timeframes. Win BIG!</p>
-        </section>
-
+    <main class="main-grid">
+        <!-- Main Build Section -->
         <section class="build-parlay">
-            <h3>Step 1: Set Your Price Targets and Timeframes</h3>
+            <h3>Step 1: Choose Timeframe</h3>
+            <select id="global-timeframe">
+                <option value="1 Day">1 Day</option>
+                <option value="3 Days">3 Days</option>
+                <option value="7 Days" selected>7 Days</option>
+                <option value="30 Days">30 Days</option>
+            </select>
+
+            <h3>Step 2: Set Price Targets</h3>
             <div id="events">
-                <!-- Dynamic inputs -->
+                <!-- Dynamic event inputs -->
             </div>
 
-            <h3>Step 2: Place Your Bet</h3>
+            <h3>Step 3: Place Your Bet</h3>
             <input type="number" id="bet-amount" placeholder="Enter bet amount in USD">
             <button id="confirm-bet">Confirm Bet</button>
 
@@ -38,6 +42,17 @@
             <div id="parlay-summary"></div>
             <div id="potential-payout"></div>
         </section>
+
+        <!-- Sidebar Section -->
+        <aside class="sidebar">
+            <h3>🏆 Top Wins This Week</h3>
+            <ul id="top-wins">
+                <li>0xAbc...1234 — 78x</li>
+                <li>0xDef...5678 — 62x</li>
+                <li>0xGhi...9012 — 51x</li>
+                <li>0xJkl...3456 — 44x</li>
+            </ul>
+        </aside>
     </main>
 
     <script src="script.js"></script>
