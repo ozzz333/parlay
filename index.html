@@ -5,22 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parlay.fun</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Solana Web3.js -->
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
 </head>
 <body>
     <header>
         <h1>Parlay.fun 🔥</h1>
-        <nav>
-            <a href="#">Home</a>
-            <a href="#">Build Parlay</a>
-            <a href="#">Leaderboard</a>
-            <a href="#">My Bets</a>
-            <a href="#">FAQ</a>
-        </nav>
+        <div class="header-right">
+            <button id="connect-wallet">Connect Wallet</button>
+            <span id="wallet-address"></span>
+        </div>
     </header>
 
     <main class="main-grid">
-        <!-- Main Build Section -->
-        <section class="build-parlay">
+        <section class="build-parlay fade-in">
             <h3>Step 1: Choose Timeframe</h3>
             <select id="global-timeframe">
                 <option value="1 Day">1 Day</option>
@@ -30,21 +28,18 @@
             </select>
 
             <h3>Step 2: Set Price Targets</h3>
-            <div id="events">
-                <!-- Dynamic event inputs -->
-            </div>
+            <div id="events"></div>
 
             <h3>Step 3: Place Your Bet</h3>
             <input type="number" id="bet-amount" placeholder="Enter bet amount in USD">
             <button id="confirm-bet">Confirm Bet</button>
 
-            <div id="error-message" style="color: red; margin-top: 1rem;"></div>
+            <div id="error-message"></div>
             <div id="parlay-summary"></div>
             <div id="potential-payout"></div>
         </section>
 
-        <!-- Sidebar Section -->
-        <aside class="sidebar">
+        <aside class="sidebar fade-in">
             <h3>🏆 Top Wins This Week</h3>
             <ul id="top-wins">
                 <li>0xAbc...1234 — 78x</li>
