@@ -11,7 +11,7 @@
 
 <header class="navbar">
   <div class="header-content">
-    <h1>PARLAY.<span>FUN</span></h1>
+    <a href="/" id="logo-link"><h1>PARLAY.<span>FUN</span></h1></a>
     <div class="header-actions">
       <button id="connect-wallet">Connect Wallet</button>
       <span id="wallet-address"></span>
@@ -19,11 +19,16 @@
   </div>
 </header>
 
-<!-- Landing Page Hero -->
+<!-- Hero Landing Section -->
 <section id="landing-section" class="hero-section">
+  <div class="background-overlay">
+    <img src="btc.png" class="floating-icon btc" alt="Bitcoin">
+    <img src="eth.png" class="floating-icon eth" alt="Ethereum">
+    <img src="sol.png" class="floating-icon sol" alt="Solana">
+  </div>
   <div class="hero-content">
-    <h2>Build Your Crypto Dream Parlays</h2>
-    <p>Combine Bitcoin, Ethereum, Solana predictions into massive payout combos. Bigger wins. Bigger thrills. Fully decentralized.</p>
+    <h2>Where Crypto Parlays Become Reality</h2>
+    <p>Stack Bitcoin, Ethereum, Solana predictions into massive wins. Fully decentralized. Built for dreamers.</p>
     <div class="hero-buttons">
       <button id="start-parlay" class="primary-button">Start Building</button>
       <button id="view-leaderboard" class="secondary-button">View Leaderboard</button>
@@ -31,12 +36,10 @@
   </div>
 </section>
 
-<!-- Main App (Hidden until Start Building) -->
+<!-- Main Parlay Builder (hidden until start) -->
 <main id="app-section" class="main-grid hidden">
-  <!-- Left: Build Parlay Section -->
   <section class="build-parlay card">
     <h2>🎯 Build Your Parlay</h2>
-
     <div class="parlay-section">
       <label>Choose Timeframe</label>
       <select id="global-timeframe">
@@ -46,22 +49,18 @@
         <option value="30 Days">30 Days</option>
       </select>
     </div>
-
     <div class="parlay-section">
       <label>Set Price Targets</label>
       <div id="events" class="events-grid"></div>
     </div>
-
     <div class="parlay-section">
       <label>Bet Amount (USD)</label>
       <input type="number" id="bet-amount" placeholder="Enter amount" />
       <button id="confirm-bet" class="confirm-button">Confirm Parlay</button>
     </div>
-
     <div id="error-message"></div>
   </section>
 
-  <!-- Right: Parlay Slip Section -->
   <aside class="parlay-slip card">
     <h2>🧾 Your Parlay Slip</h2>
     <div id="parlay-summary"></div>
@@ -69,7 +68,7 @@
   </aside>
 </main>
 
-<!-- Modal -->
+<!-- Success Modal -->
 <div id="success-modal" class="modal hidden">
   <div class="modal-content">
     <div id="loading-spinner" class="spinner hidden"></div>
@@ -85,6 +84,5 @@
 </div>
 
 <script src="script.js"></script>
-
 </body>
 </html>
