@@ -10,7 +10,7 @@ const coinSymbols = {
 };
 
 const CORRELATION_DISCOUNT = 0.9;
-const RECEIVER_WALLET = "YOUR_DEVNET_RECEIVER_PUBLIC_KEY_HERE"; // ⚡ Replace this!
+const RECEIVER_WALLET = "YOUR_DEVNET_RECEIVER_PUBLIC_KEY_HERE"; // ⚡ Set your address here
 const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'), 'confirmed');
 
 let livePrices = {};
@@ -24,6 +24,7 @@ const explorerLink = document.getElementById('explorer-link');
 const loadingSpinner = document.getElementById('loading-spinner');
 const modalTitle = document.getElementById('modal-title');
 const modalMessage = document.getElementById('modal-message');
+const connectButton = document.getElementById('connect-wallet');
 
 // Modal Functions
 function showLoadingModal() {
@@ -75,6 +76,7 @@ function closeSuccessModal() {
 }
 
 closeModalBtn.addEventListener('click', closeSuccessModal);
+
 copyTxButton.addEventListener('click', () => {
     navigator.clipboard.writeText(txIdElement.innerText);
     copyTxButton.innerText = 'Copied!';
@@ -83,7 +85,7 @@ copyTxButton.addEventListener('click', () => {
     }, 2000);
 });
 
-// Fetch live prices
+// Fetch prices
 async function fetchPrices() {
     try {
         const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin,cardano,dogecoin&vs_currencies=usd');
@@ -103,7 +105,7 @@ async function fetchPrices() {
     }
 }
 
-// Build price target input fields
+// Build inputs
 function buildEventInputs() {
     const eventsDiv = document.getElementById('events');
     eventsDiv.innerHTML = "";
@@ -126,7 +128,7 @@ function buildEventInputs() {
     }
 }
 
-// Correct Odds Calculation (Up or Down)
+// Correct Odds Calculation (both up/down)
 function calculateOdds(currentPrice, targetPrice, timeframe) {
     const difficulty = Math.abs(targetPrice - currentPrice) / currentPrice;
     let baseOdds = 2 + difficulty * 10;
@@ -140,9 +142,9 @@ function calculateOdds(currentPrice, targetPrice, timeframe) {
     return Math.max(1.5, Math.min(baseOdds * multiplier, 50));
 }
 
-// Dynamic Margin based on Asset + Timeframe
+// Dynamic margin based on asset + timeframe
 function getMarginForAssetAndTimeframe(symbol, timeframe) {
-    let baseMargin = 0.005; // BTC = 0.5%
+    let baseMargin = 0.005;
 
     let marketCapMultiplier = 1.0;
     switch (symbol) {
@@ -166,7 +168,7 @@ function getMarginForAssetAndTimeframe(symbol, timeframe) {
     }
 }
 
-// Confirm Bet Click
+// Confirm Bet click
 document.getElementById('confirm-bet').addEventListener('click', async () => {
     let selectedEvents = [];
     const timeframe = document.getElementById('global-timeframe').value;
@@ -211,13 +213,11 @@ document.getElementById('confirm-bet').addEventListener('click', async () => {
         <h4>Your Parlay:</h4>
         <ul>
             ${selectedEvents.map(e => `
-                <li>
-                    ${e.coin} between <strong>$${e.lowerBound.toFixed(2)}</strong> - <strong>$${e.upperBound.toFixed(2)}</strong> (±${(e.margin * 100).toFixed(2)}%) — <strong>${e.odds.toFixed(2)}x</strong>
-                </li>
+                <li>${e.coin}: <strong>$${e.lowerBound.toFixed(2)}</strong> - <strong>$${e.upperBound.toFixed(2)}</strong> (±${(e.margin * 100).toFixed(2)}%) — <strong>${e.odds.toFixed(2)}x</strong></li>
             `).join('')}
         </ul>
-        <p><strong>Raw Odds:</strong> ${combinedOdds.toFixed(2)}x</p>
-        <p><strong>After Correlation:</strong> ${adjustedOdds.toFixed(2)}x</p>
+        <p><strong>Combined Odds:</strong> ${combinedOdds.toFixed(2)}x</p>
+        <p><strong>Adjusted Odds:</strong> ${adjustedOdds.toFixed(2)}x</p>
     `;
 
     document.getElementById('potential-payout').innerHTML = `<h4>Potential Payout: $${potentialPayout.toFixed(2)}</h4>`;
@@ -226,7 +226,7 @@ document.getElementById('confirm-bet').addEventListener('click', async () => {
     await placeBetTransaction(parlaySummary);
 });
 
-// Place Transaction to Solana Devnet
+// Send transaction
 async function placeBetTransaction(parlaySummary) {
     if (window.solana && window.solana.isPhantom) {
         try {
@@ -265,19 +265,29 @@ async function placeBetTransaction(parlaySummary) {
     }
 }
 
-// Wallet Connect Button
-document.getElementById('connect-wallet').addEventListener('click', async () => {
-    if (window.solana && window.solana.isPhantom) {
+// Connect/Disconnect Wallet
+connectButton.addEventListener('click', async () => {
+    if (!window.solana || !window.solana.isPhantom) {
+        showErrorModal("Phantom Wallet not found.");
+        return;
+    }
+
+    if (connectButton.innerText === "Connect Wallet") {
         try {
             const resp = await window.solana.connect();
             document.getElementById('wallet-address').innerText = `Wallet: ${resp.publicKey.toString().slice(0, 6)}...${resp.publicKey.toString().slice(-4)}`;
+            connectButton.innerText = "Disconnect Wallet";
+            connectButton.classList.add('disconnect');
         } catch (err) {
             console.error('Wallet connection rejected.');
         }
     } else {
-        showErrorModal("Phantom Wallet not found.");
+        window.solana.disconnect();
+        document.getElementById('wallet-address').innerText = "";
+        connectButton.innerText = "Connect Wallet";
+        connectButton.classList.remove('disconnect');
     }
 });
 
-// Initialize App
+// Initialize
 fetchPrices();
