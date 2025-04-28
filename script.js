@@ -73,4 +73,48 @@ document.getElementById('confirm-bet').addEventListener('click', () => {
         const target = parseFloat(targetInput.value);
         if (!isNaN(target)) {
             const odds = calculateOdds(livePrices[symbol], target, timeframe);
-            se
+            selectedEvents.push({ coin: symbol, target, timeframe, odds });
+        }
+    }
+
+    const errorMessage = document.getElementById('error-message');
+    if (selectedEvents.length < 3) {
+        errorMessage.innerText = "⚠️ Please select at least 3 coins!";
+        document.getElementById('parlay-summary').innerHTML = "";
+        document.getElementById('potential-payout').innerHTML = "";
+        return;
+    } else {
+        errorMessage.innerText = "";
+    }
+
+    const betAmount = parseFloat(document.getElementById('bet-amount').value) || 0;
+    const combinedOdds = selectedEvents.reduce((total, e) => total * e.odds, 1);
+    const potentialPayout = betAmount * combinedOdds;
+
+    document.getElementById('parlay-summary').innerHTML = `
+        <h4>Your Parlay:</h4>
+        <ul>
+            ${selectedEvents.map(e => `<li>${e.coin} > $${e.target} in ${e.timeframe} (${e.odds.toFixed(2)}x)</li>`).join('')}
+        </ul>
+        <p><strong>Combined Odds:</strong> ${combinedOdds.toFixed(2)}x</p>
+    `;
+
+    document.getElementById('potential-payout').innerHTML = `<h4>Potential Payout: $${potentialPayout.toFixed(2)}</h4>`;
+});
+
+// Phantom Wallet Connection
+document.getElementById('connect-wallet').addEventListener('click', async () => {
+    if (window.solana && window.solana.isPhantom) {
+        try {
+            const resp = await window.solana.connect();
+            document.getElementById('wallet-address').innerText = `Wallet: ${resp.publicKey.toString().slice(0, 6)}...${resp.publicKey.toString().slice(-4)}`;
+        } catch (err) {
+            console.error('User rejected wallet connection');
+        }
+    } else {
+        alert('Phantom Wallet not found! Please install it.');
+    }
+});
+
+// Start app
+fetchPrices();
