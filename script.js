@@ -37,12 +37,12 @@ function buildEventInputs() {
         container.className = 'event';
 
         const label = document.createElement('label');
-        label.innerText = `${symbol} Target Price (Current: $${price}):`;
+        label.innerText = `${symbol} Target ($${price}):`;
 
         const input = document.createElement('input');
         input.type = 'number';
         input.id = `${symbol}-target`;
-        input.placeholder = "Enter target price";
+        input.placeholder = "Target Price";
 
         container.appendChild(label);
         container.appendChild(input);
@@ -66,7 +66,6 @@ function calculateOdds(currentPrice, targetPrice, timeframe) {
 
 document.getElementById('confirm-bet').addEventListener('click', () => {
     let selectedEvents = [];
-
     const timeframe = document.getElementById('global-timeframe').value;
 
     for (const symbol of Object.keys(livePrices)) {
@@ -74,33 +73,4 @@ document.getElementById('confirm-bet').addEventListener('click', () => {
         const target = parseFloat(targetInput.value);
         if (!isNaN(target)) {
             const odds = calculateOdds(livePrices[symbol], target, timeframe);
-            selectedEvents.push({ coin: symbol, target, timeframe, odds });
-        }
-    }
-
-    const errorMessage = document.getElementById('error-message');
-    if (selectedEvents.length < 3) {
-        errorMessage.innerText = "⚠️ Please select at least 3 coins!";
-        document.getElementById('parlay-summary').innerHTML = "";
-        document.getElementById('potential-payout').innerHTML = "";
-        return;
-    } else {
-        errorMessage.innerText = "";
-    }
-
-    const betAmount = parseFloat(document.getElementById('bet-amount').value) || 0;
-    const combinedOdds = selectedEvents.reduce((total, e) => total * e.odds, 1);
-    const potentialPayout = betAmount * combinedOdds;
-
-    document.getElementById('parlay-summary').innerHTML = `
-        <h4>Your Parlay:</h4>
-        <ul>
-            ${selectedEvents.map(e => `<li>${e.coin} > $${e.target} in ${e.timeframe} (${e.odds.toFixed(2)}x)</li>`).join('')}
-        </ul>
-        <p><strong>Combined Odds:</strong> ${combinedOdds.toFixed(2)}x</p>
-    `;
-
-    document.getElementById('potential-payout').innerHTML = `<h4>Potential Payout: $${potentialPayout.toFixed(2)}</h4>`;
-});
-
-fetchPrices();
+            se
