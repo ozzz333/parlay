@@ -8,6 +8,8 @@ const coinSymbols = {
     dogecoin: "DOGE"
 };
 
+const CORRELATION_DISCOUNT = 0.9; // 10% odds reduction for correlated assets
+
 let livePrices = {};
 
 async function fetchPrices() {
@@ -64,16 +66,39 @@ function calculateOdds(currentPrice, targetPrice, timeframe) {
     return Math.max(1.5, Math.min(baseOdds * multiplier, 50));
 }
 
+// Margin depends on timeframe
+function getMarginForTimeframe(timeframe) {
+    switch(timeframe) {
+        case "1 Day": return 0.005; // 0.5%
+        case "3 Days": return 0.0075; // 0.75%
+        case "7 Days": return 0.01; // 1.0%
+        case "30 Days": return 0.015; // 1.5%
+        default: return 0.01;
+    }
+}
+
 document.getElementById('confirm-bet').addEventListener('click', () => {
     let selectedEvents = [];
     const timeframe = document.getElementById('global-timeframe').value;
+    const margin = getMarginForTimeframe(timeframe);
 
     for (const symbol of Object.keys(livePrices)) {
         const targetInput = document.getElementById(`${symbol}-target`);
         const target = parseFloat(targetInput.value);
         if (!isNaN(target)) {
+            const lowerBound = target * (1 - margin);
+            const upperBound = target * (1 + margin);
             const odds = calculateOdds(livePrices[symbol], target, timeframe);
-            selectedEvents.push({ coin: symbol, target, timeframe, odds });
+
+            selectedEvents.push({
+                coin: symbol,
+                target,
+                lowerBound,
+                upperBound,
+                timeframe,
+                margin,
+                odds
+            });
         }
     }
 
@@ -89,17 +114,31 @@ document.getElementById('confirm-bet').addEventListener('click', () => {
 
     const betAmount = parseFloat(document.getElementById('bet-amount').value) || 0;
     const combinedOdds = selectedEvents.reduce((total, e) => total * e.odds, 1);
-    const potentialPayout = betAmount * combinedOdds;
+
+    // Apply correlation discount
+    const adjustedOdds = combinedOdds * CORRELATION_DISCOUNT;
+    const potentialPayout = betAmount * adjustedOdds;
 
     document.getElementById('parlay-summary').innerHTML = `
-        <h4>Your Parlay:</h4>
+        <h4>Your Parlay (Margin ±${(margin * 100).toFixed(2)}%):</h4>
         <ul>
-            ${selectedEvents.map(e => `<li>${e.coin} > $${e.target} in ${e.timeframe} (${e.odds.toFixed(2)}x)</li>`).join('')}
+            ${selectedEvents.map(e => `
+                <li>
+                    ${e.coin}: must hit between 
+                    <strong>$${e.lowerBound.toFixed(2)}</strong> and 
+                    <strong>$${e.upperBound.toFixed(2)}</strong> 
+                    in ${e.timeframe} 
+                    (<strong>Odds: ${e.odds.toFixed(2)}x</strong>)
+                </li>
+            `).join('')}
         </ul>
-        <p><strong>Combined Odds:</strong> ${combinedOdds.toFixed(2)}x</p>
+        <p><strong>Raw Combined Odds:</strong> ${combinedOdds.toFixed(2)}x</p>
+        <p><strong>After Correlation Discount:</strong> ${adjustedOdds.toFixed(2)}x</p>
     `;
 
     document.getElementById('potential-payout').innerHTML = `<h4>Potential Payout: $${potentialPayout.toFixed(2)}</h4>`;
+
+    // 🚀 Optional next: placeBetTransaction();
 });
 
 // Phantom Wallet Connection
@@ -112,7 +151,7 @@ document.getElementById('connect-wallet').addEventListener('click', async () => 
             console.error('User rejected wallet connection');
         }
     } else {
-        alert('Phantom Wallet not found! Please install it.');
+        alert('Phantom Wallet not found.');
     }
 });
 
