@@ -1,4 +1,4 @@
-// Coins and Setup
+// Constants
 const coins = ["bitcoin", "ethereum", "solana", "binancecoin", "cardano", "dogecoin"];
 const coinSymbols = {
     bitcoin: "BTC",
@@ -10,12 +10,66 @@ const coinSymbols = {
 };
 
 const CORRELATION_DISCOUNT = 0.9; // 10% odds reduction
-const RECEIVER_WALLET = "CRHCe9qHjdAGYhCKjrrKX2wuebF2V5NT9SD6cJScGkcg"; // <<== SET THIS!
+const RECEIVER_WALLET = "CRHCe9qHjdAGYhCKjrrKX2wuebF2V5NT9SD6cJScGkcg"; // 🛠 Replace this
 const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'), 'confirmed');
 
 let livePrices = {};
 
-// 1. Fetch live prices
+// Modal Elements
+const modal = document.getElementById('success-modal');
+const closeModalBtn = document.getElementById('close-modal');
+const txIdElement = document.getElementById('tx-id');
+const copyTxButton = document.getElementById('copy-tx');
+const explorerLink = document.getElementById('explorer-link');
+const loadingSpinner = document.getElementById('loading-spinner');
+const modalTitle = document.getElementById('modal-title');
+const modalMessage = document.getElementById('modal-message');
+
+// Modal Functions
+function showLoadingModal() {
+    modalTitle.innerText = "Placing Bet...";
+    modalMessage.innerText = "Waiting for transaction confirmation...";
+    txIdElement.innerText = "";
+    explorerLink.href = "#";
+    loadingSpinner.classList.remove('hidden');
+    copyTxButton.classList.add('hidden');
+    explorerLink.classList.add('hidden');
+
+    modal.classList.add('show');
+    modal.classList.remove('hidden');
+}
+
+function showSuccessModal(signature) {
+    loadingSpinner.classList.add('hidden');
+    modalTitle.innerText = "✅ Bet Placed Successfully!";
+    modalMessage.innerText = "Transaction ID:";
+    txIdElement.innerText = signature;
+    explorerLink.href = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
+    explorerLink.classList.remove('hidden');
+    copyTxButton.classList.remove('hidden');
+
+    // Auto-close modal after 5 seconds
+    setTimeout(() => {
+        closeSuccessModal();
+    }, 5000);
+}
+
+function closeSuccessModal() {
+    modal.classList.remove('show');
+    modal.classList.add('hidden');
+}
+
+closeModalBtn.addEventListener('click', closeSuccessModal);
+
+copyTxButton.addEventListener('click', () => {
+    navigator.clipboard.writeText(txIdElement.innerText);
+    copyTxButton.innerText = 'Copied!';
+    setTimeout(() => {
+        copyTxButton.innerText = 'Copy Tx ID';
+    }, 2000);
+});
+
+// Fetch prices
 async function fetchPrices() {
     try {
         const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin,cardano,dogecoin&vs_currencies=usd');
@@ -34,7 +88,7 @@ async function fetchPrices() {
     }
 }
 
-// 2. Build coin inputs
+// Build the parlay input form
 function buildEventInputs() {
     const eventsDiv = document.getElementById('events');
     eventsDiv.innerHTML = "";
@@ -57,7 +111,7 @@ function buildEventInputs() {
     }
 }
 
-// 3. Calculate odds
+// Calculate odds
 function calculateOdds(currentPrice, targetPrice, timeframe) {
     if (targetPrice <= currentPrice) return 1.5;
     const difficulty = (targetPrice - currentPrice) / currentPrice;
@@ -72,9 +126,9 @@ function calculateOdds(currentPrice, targetPrice, timeframe) {
     return Math.max(1.5, Math.min(baseOdds * multiplier, 50));
 }
 
-// 4. Dynamic margin based on asset + timeframe
+// Margin calculation based on asset size and timeframe
 function getMarginForAssetAndTimeframe(symbol, timeframe) {
-    let baseMargin = 0.005; // BTC base = 0.5%
+    let baseMargin = 0.005; // BTC = 0.5%
 
     let marketCapMultiplier = 1.0;
 
@@ -112,7 +166,7 @@ function getMarginForAssetAndTimeframe(symbol, timeframe) {
     }
 }
 
-// 5. Confirm Bet Logic
+// Confirm Bet
 document.getElementById('confirm-bet').addEventListener('click', async () => {
     let selectedEvents = [];
     const timeframe = document.getElementById('global-timeframe').value;
@@ -159,31 +213,31 @@ document.getElementById('confirm-bet').addEventListener('click', async () => {
         <ul>
             ${selectedEvents.map(e => `
                 <li>
-                    ${e.coin} must land between 
-                    <strong>$${e.lowerBound.toFixed(2)}</strong> and 
+                    ${e.coin} between 
+                    <strong>$${e.lowerBound.toFixed(2)}</strong> - 
                     <strong>$${e.upperBound.toFixed(2)}</strong> 
-                    (Margin ±${(e.margin * 100).toFixed(2)}%) in ${e.timeframe}
-                    — Odds: <strong>${e.odds.toFixed(2)}x</strong>
+                    (Margin ±${(e.margin * 100).toFixed(2)}%) — Odds: <strong>${e.odds.toFixed(2)}x</strong>
                 </li>
             `).join('')}
         </ul>
-        <p><strong>Raw Combined Odds:</strong> ${combinedOdds.toFixed(2)}x</p>
-        <p><strong>After Correlation Discount:</strong> ${adjustedOdds.toFixed(2)}x</p>
+        <p><strong>Raw Odds:</strong> ${combinedOdds.toFixed(2)}x</p>
+        <p><strong>After Correlation:</strong> ${adjustedOdds.toFixed(2)}x</p>
     `;
 
     document.getElementById('potential-payout').innerHTML = `<h4>Potential Payout: $${potentialPayout.toFixed(2)}</h4>`;
 
-    // 👇 New: Trigger Transaction after confirming parlay
+    // 🔥 New: Send transaction with memo
     const parlaySummary = selectedEvents.map(e => `${e.coin}:${e.target}`).join(', ') + ` | ${timeframe}`;
     await placeBetTransaction(parlaySummary);
 });
 
-// 6. Send real Solana transaction
+// Place the bet transaction
 async function placeBetTransaction(parlaySummary) {
     if (window.solana && window.solana.isPhantom) {
         try {
-            const fromWallet = window.solana.publicKey;
+            showLoadingModal();
 
+            const fromWallet = window.solana.publicKey;
             const transaction = new solanaWeb3.Transaction().add(
                 solanaWeb3.SystemProgram.transfer({
                     fromPubkey: fromWallet,
@@ -205,31 +259,31 @@ async function placeBetTransaction(parlaySummary) {
             const signature = await connection.sendRawTransaction(signed.serialize());
             await connection.confirmTransaction(signature);
 
-            alert(`✅ Bet placed successfully!\nTx ID: ${signature}`);
-            window.open(`https://explorer.solana.com/tx/${signature}?cluster=devnet`, '_blank');
+            showSuccessModal(signature);
 
         } catch (err) {
-            console.error('Transaction failed', err);
+            console.error('Transaction failed:', err);
             alert('❌ Bet failed or rejected.');
+            closeSuccessModal();
         }
     } else {
         alert('Phantom Wallet not found.');
     }
 }
 
-// 7. Wallet Connect
+// Connect Wallet
 document.getElementById('connect-wallet').addEventListener('click', async () => {
     if (window.solana && window.solana.isPhantom) {
         try {
             const resp = await window.solana.connect();
             document.getElementById('wallet-address').innerText = `Wallet: ${resp.publicKey.toString().slice(0, 6)}...${resp.publicKey.toString().slice(-4)}`;
         } catch (err) {
-            console.error('Wallet connection rejected.');
+            console.error('Wallet connect rejected.');
         }
     } else {
         alert('Phantom Wallet not found.');
     }
 });
 
-// 8. Launch App
+// Init
 fetchPrices();
