@@ -1,53 +1,74 @@
 body {
-    background-color: #0e1117;
+    background: #0d1117;
     font-family: 'Poppins', sans-serif;
-    color: #e5e5e5;
+    color: #c9d1d9;
     margin: 0;
     padding: 0;
     font-size: 14px;
 }
 
 header {
-    background-color: #0d0d0d;
-    padding: 1rem 2rem;
+    background-color: #161b22;
+    padding: 0.75rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-size: 14px;
 }
 
 nav a {
     margin: 0 12px;
-    color: #5dade2;
+    color: #58a6ff;
     text-decoration: none;
-    font-weight: 500;
-    font-size: 14px;
+}
+
+h1, h2, h3, h4 {
+    margin: 0;
+    color: #c9d1d9;
+    font-weight: 600;
 }
 
 .hero {
     text-align: center;
     padding: 2rem 1rem;
-    background: linear-gradient(90deg, #5dade2, #48c9b0, #a569bd);
-    color: #0e1117;
+    background: #161b22;
+    color: #58a6ff;
+    font-size: 18px;
 }
 
-main {
-    display: flex;
-    justify-content: center;
+main.main-grid {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 2rem;
     padding: 2rem;
+    max-width: 1200px;
+    margin: auto;
 }
 
 .build-parlay {
-    width: 100%;
-    max-width: 600px;
     background-color: #161b22;
-    border: 1px solid #2c313a;
-    border-radius: 12px;
+    border: 1px solid #30363d;
     padding: 2rem;
+    border-radius: 12px;
 }
 
-h1, h2, h3, h4 {
-    font-weight: 600;
-    margin-bottom: 1rem;
+.sidebar {
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    padding: 2rem;
+    border-radius: 12px;
+    height: fit-content;
+    position: sticky;
+    top: 2rem;
+}
+
+.sidebar ul {
+    padding-left: 1rem;
+    list-style: none;
+}
+
+.sidebar li {
+    margin-bottom: 0.75rem;
 }
 
 .event {
@@ -55,46 +76,43 @@ h1, h2, h3, h4 {
 }
 
 input[type="number"], select {
-    background-color: #0d1117;
-    color: #e5e5e5;
     padding: 0.5rem;
-    margin-top: 0.5rem;
+    margin-top: 0.25rem;
     width: 100%;
-    border: 1px solid #2c313a;
-    border-radius: 8px;
-    outline: none;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    border-radius: 6px;
     font-size: 14px;
+}
+
+input[type="number"]:focus, select:focus {
+    border: 1px solid #58a6ff;
+    outline: none;
 }
 
 button {
-    background-color: #5dade2;
-    color: #0e1117;
+    background-color: #238636;
+    color: white;
     border: none;
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 2rem;
     margin-top: 1rem;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
     border-radius: 8px;
-    transition: background 0.3s;
-    width: 100%;
+    transition: background 0.2s ease;
 }
 
 button:hover {
-    background-color: #48c9b0;
-}
-
-#error-message {
-    color: #ff4c4c;
-    margin-top: 1rem;
-    font-size: 13px;
-    text-align: center;
+    background-color: #2ea043;
 }
 
 #parlay-summary, #potential-payout {
-    margin-top: 1.5rem;
-    background-color: #0d1117;
-    border: 1px solid #2c313a;
-    padding: 1rem;
-    border-radius: 10px;
+    margin-top: 2rem;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    padding: 1.5rem;
+    border-radius: 12px;
+    font-size: 14px;
 }
