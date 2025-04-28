@@ -1,4 +1,4 @@
-/* Base Styles */
+/* Base styles */
 body {
     background: #0e1117;
     font-family: 'Poppins', sans-serif;
@@ -102,7 +102,7 @@ button:hover {
     margin-bottom: 0.8rem;
 }
 
-/* Modal Styles */
+/* Modal styles */
 .modal {
     position: fixed;
     top: 0;
@@ -164,4 +164,16 @@ button:hover {
 }
 
 @keyframes spin {
-    0% { t
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Show/Hide modal */
+.modal.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.hidden {
+    display: none;
+}
