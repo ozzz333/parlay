@@ -10,7 +10,7 @@ const coinSymbols = {
 };
 
 const CORRELATION_DISCOUNT = 0.9; // 10% odds reduction
-const RECEIVER_WALLET = "YOUR_DEVNET_RECEIVER_PUBLIC_KEY_HERE"; // <<== SET THIS!
+const RECEIVER_WALLET = "CRHCe9qHjdAGYhCKjrrKX2wuebF2V5NT9SD6cJScGkcg"; // <<== SET THIS!
 const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'), 'confirmed');
 
 let livePrices = {};
