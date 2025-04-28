@@ -10,38 +10,48 @@
 <body>
 
 <header>
-  <h1>Parlay.fun 🔥</h1>
-  <div class="header-right">
-    <button id="connect-wallet">Connect Wallet</button>
-    <span id="wallet-address"></span>
+  <div class="header-content">
+    <h1>Parlay.fun 🔥</h1>
+    <div class="header-actions">
+      <button id="connect-wallet">Connect Wallet</button>
+      <span id="wallet-address"></span>
+    </div>
   </div>
 </header>
 
 <main class="main-grid">
-  <section class="build-parlay fade-in">
-    <h3>Choose Timeframe</h3>
-    <select id="global-timeframe">
-      <option value="1 Day">1 Day</option>
-      <option value="3 Days">3 Days</option>
-      <option value="7 Days" selected>7 Days</option>
-      <option value="30 Days">30 Days</option>
-    </select>
+  <section class="build-parlay card fade-in">
+    <h2>🎯 Build Your Parlay</h2>
 
-    <h3>Set Price Targets</h3>
-    <div id="events"></div>
+    <div class="parlay-section">
+      <label>Choose Timeframe</label>
+      <select id="global-timeframe">
+        <option value="1 Day">1 Day</option>
+        <option value="3 Days">3 Days</option>
+        <option value="7 Days" selected>7 Days</option>
+        <option value="30 Days">30 Days</option>
+      </select>
+    </div>
 
-    <h3>Place Your Bet</h3>
-    <input type="number" id="bet-amount" placeholder="Bet amount (USD)" />
-    <button id="confirm-bet">Confirm Bet</button>
+    <div class="parlay-section">
+      <label>Set Price Targets</label>
+      <div id="events"></div>
+    </div>
+
+    <div class="parlay-section">
+      <label>Bet Amount (USD)</label>
+      <input type="number" id="bet-amount" placeholder="Enter amount" />
+      <button id="confirm-bet">Confirm Parlay</button>
+    </div>
 
     <div id="error-message"></div>
     <div id="parlay-summary"></div>
     <div id="potential-payout"></div>
   </section>
 
-  <aside class="sidebar fade-in">
-    <h3>🏆 Top Wins</h3>
-    <ul>
+  <aside class="sidebar card fade-in">
+    <h2>🏆 Top Wins</h2>
+    <ul id="top-wins">
       <li>0xAbc...1234 — 78x</li>
       <li>0xDef...5678 — 62x</li>
       <li>0xGhi...9012 — 51x</li>
