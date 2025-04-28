@@ -19,7 +19,7 @@
 
     <main class="main-grid">
         <section class="build-parlay fade-in">
-            <h3>Step 1: Choose Timeframe</h3>
+            <h3>Choose Timeframe</h3>
             <select id="global-timeframe">
                 <option value="1 Day">1 Day</option>
                 <option value="3 Days">3 Days</option>
@@ -27,11 +27,11 @@
                 <option value="30 Days">30 Days</option>
             </select>
 
-            <h3>Step 2: Set Price Targets</h3>
+            <h3>Set Price Targets</h3>
             <div id="events"></div>
 
-            <h3>Step 3: Place Your Bet</h3>
-            <input type="number" id="bet-amount" placeholder="Enter bet amount in USD">
+            <h3>Place Your Bet</h3>
+            <input type="number" id="bet-amount" placeholder="Bet amount (USD)">
             <button id="confirm-bet">Confirm Bet</button>
 
             <div id="error-message"></div>
@@ -40,15 +40,30 @@
         </section>
 
         <aside class="sidebar fade-in">
-            <h3>🏆 Top Wins This Week</h3>
+            <h3>🏆 Top Wins</h3>
             <ul id="top-wins">
                 <li>0xAbc...1234 — 78x</li>
                 <li>0xDef...5678 — 62x</li>
                 <li>0xGhi...9012 — 51x</li>
-                <li>0xJkl...3456 — 44x</li>
             </ul>
         </aside>
     </main>
+
+    <!-- Modal -->
+    <div id="success-modal" class="modal hidden">
+        <div class="modal-content">
+            <div id="loading-spinner" class="spinner hidden"></div>
+
+            <span id="close-modal">&times;</span>
+
+            <h2 id="modal-title">✅ Bet Placed Successfully!</h2>
+            <p id="modal-message">Transaction ID:</p>
+            <p id="tx-id"></p>
+            <button id="copy-tx">Copy Tx ID</button>
+            <br><br>
+            <a id="explorer-link" href="#" target="_blank">View on Solana Explorer 🔗</a>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
