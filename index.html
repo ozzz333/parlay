@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parlay.fun</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Parlay.fun 🔥</h1>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Build Parlay</a>
+            <a href="#">Leaderboard</a>
+            <a href="#">My Bets</a>
+            <a href="#">FAQ</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h2>Build Your Crypto Parlay</h2>
+            <p>Set your custom price targets and win BIG if they hit!</p>
+        </section>
+
+        <section class="build-parlay">
+            <h3>Step 1: Set Your Price Targets</h3>
+            <div id="events">
+                <!-- Price target inputs will appear here -->
+            </div>
+
+            <h3>Step 2: Place Your Bet</h3>
+            <input type="number" id="bet-amount" placeholder="Enter bet amount in USD">
+            <button id="confirm-bet">Confirm Bet</button>
+
+            <div id="parlay-summary"></div>
+            <div id="potential-payout"></div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
