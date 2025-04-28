@@ -1,70 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parlay.fun</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Solana Web3.js -->
-    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Parlay.fun</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Parlay.fun 🔥</h1>
-        <div class="header-right">
-            <button id="connect-wallet">Connect Wallet</button>
-            <span id="wallet-address"></span>
-        </div>
-    </header>
 
-    <main class="main-grid">
-        <section class="build-parlay fade-in">
-            <h3>Choose Timeframe</h3>
-            <select id="global-timeframe">
-                <option value="1 Day">1 Day</option>
-                <option value="3 Days">3 Days</option>
-                <option value="7 Days" selected>7 Days</option>
-                <option value="30 Days">30 Days</option>
-            </select>
+<header>
+  <h1>Parlay.fun 🔥</h1>
+  <div class="header-right">
+    <button id="connect-wallet">Connect Wallet</button>
+    <span id="wallet-address"></span>
+  </div>
+</header>
 
-            <h3>Set Price Targets</h3>
-            <div id="events"></div>
+<main class="main-grid">
+  <section class="build-parlay fade-in">
+    <h3>Choose Timeframe</h3>
+    <select id="global-timeframe">
+      <option value="1 Day">1 Day</option>
+      <option value="3 Days">3 Days</option>
+      <option value="7 Days" selected>7 Days</option>
+      <option value="30 Days">30 Days</option>
+    </select>
 
-            <h3>Place Your Bet</h3>
-            <input type="number" id="bet-amount" placeholder="Bet amount (USD)">
-            <button id="confirm-bet">Confirm Bet</button>
+    <h3>Set Price Targets</h3>
+    <div id="events"></div>
 
-            <div id="error-message"></div>
-            <div id="parlay-summary"></div>
-            <div id="potential-payout"></div>
-        </section>
+    <h3>Place Your Bet</h3>
+    <input type="number" id="bet-amount" placeholder="Bet amount (USD)" />
+    <button id="confirm-bet">Confirm Bet</button>
 
-        <aside class="sidebar fade-in">
-            <h3>🏆 Top Wins</h3>
-            <ul id="top-wins">
-                <li>0xAbc...1234 — 78x</li>
-                <li>0xDef...5678 — 62x</li>
-                <li>0xGhi...9012 — 51x</li>
-            </ul>
-        </aside>
-    </main>
+    <div id="error-message"></div>
+    <div id="parlay-summary"></div>
+    <div id="potential-payout"></div>
+  </section>
 
-    <!-- Modal -->
-    <div id="success-modal" class="modal hidden">
-        <div class="modal-content">
-            <div id="loading-spinner" class="spinner hidden"></div>
+  <aside class="sidebar fade-in">
+    <h3>🏆 Top Wins</h3>
+    <ul>
+      <li>0xAbc...1234 — 78x</li>
+      <li>0xDef...5678 — 62x</li>
+      <li>0xGhi...9012 — 51x</li>
+    </ul>
+  </aside>
+</main>
 
-            <span id="close-modal">&times;</span>
+<!-- Modal -->
+<div id="success-modal" class="modal hidden">
+  <div class="modal-content">
+    <div id="loading-spinner" class="spinner hidden"></div>
+    <span id="close-modal">&times;</span>
 
-            <h2 id="modal-title">✅ Bet Placed Successfully!</h2>
-            <p id="modal-message">Transaction ID:</p>
-            <p id="tx-id"></p>
-            <button id="copy-tx">Copy Tx ID</button>
-            <br><br>
-            <a id="explorer-link" href="#" target="_blank">View on Solana Explorer 🔗</a>
-        </div>
-    </div>
+    <h2 id="modal-title">✅ Bet Placed!</h2>
+    <p id="modal-message">Transaction ID:</p>
+    <p id="tx-id"></p>
+    <button id="copy-tx">Copy Tx ID</button>
+    <br><br>
+    <a id="explorer-link" href="#" target="_blank">View on Solana Explorer 🔗</a>
+  </div>
+</div>
 
-    <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
