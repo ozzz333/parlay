@@ -1,3 +1,4 @@
+// Coins and Setup
 const coins = ["bitcoin", "ethereum", "solana", "binancecoin", "cardano", "dogecoin"];
 const coinSymbols = {
     bitcoin: "BTC",
@@ -8,11 +9,13 @@ const coinSymbols = {
     dogecoin: "DOGE"
 };
 
-const CORRELATION_DISCOUNT = 0.9; // 10% odds reduction for correlation
+const CORRELATION_DISCOUNT = 0.9; // 10% odds reduction
+const RECEIVER_WALLET = "YOUR_DEVNET_RECEIVER_PUBLIC_KEY_HERE"; // <<== SET THIS!
+const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('devnet'), 'confirmed');
 
 let livePrices = {};
 
-// Fetch live prices
+// 1. Fetch live prices
 async function fetchPrices() {
     try {
         const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin,cardano,dogecoin&vs_currencies=usd');
@@ -31,7 +34,7 @@ async function fetchPrices() {
     }
 }
 
-// Build inputs dynamically
+// 2. Build coin inputs
 function buildEventInputs() {
     const eventsDiv = document.getElementById('events');
     eventsDiv.innerHTML = "";
@@ -54,7 +57,7 @@ function buildEventInputs() {
     }
 }
 
-// Calculate odds based on difficulty and timeframe
+// 3. Calculate odds
 function calculateOdds(currentPrice, targetPrice, timeframe) {
     if (targetPrice <= currentPrice) return 1.5;
     const difficulty = (targetPrice - currentPrice) / currentPrice;
@@ -69,7 +72,7 @@ function calculateOdds(currentPrice, targetPrice, timeframe) {
     return Math.max(1.5, Math.min(baseOdds * multiplier, 50));
 }
 
-// Dynamic margin based on market cap and timeframe
+// 4. Dynamic margin based on asset + timeframe
 function getMarginForAssetAndTimeframe(symbol, timeframe) {
     let baseMargin = 0.005; // BTC base = 0.5%
 
@@ -109,8 +112,8 @@ function getMarginForAssetAndTimeframe(symbol, timeframe) {
     }
 }
 
-// Confirm Bet logic
-document.getElementById('confirm-bet').addEventListener('click', () => {
+// 5. Confirm Bet Logic
+document.getElementById('confirm-bet').addEventListener('click', async () => {
     let selectedEvents = [];
     const timeframe = document.getElementById('global-timeframe').value;
 
@@ -170,22 +173,63 @@ document.getElementById('confirm-bet').addEventListener('click', () => {
 
     document.getElementById('potential-payout').innerHTML = `<h4>Potential Payout: $${potentialPayout.toFixed(2)}</h4>`;
 
-    // (Future) You could trigger wallet transaction here
+    // 👇 New: Trigger Transaction after confirming parlay
+    const parlaySummary = selectedEvents.map(e => `${e.coin}:${e.target}`).join(', ') + ` | ${timeframe}`;
+    await placeBetTransaction(parlaySummary);
 });
 
-// Phantom Wallet Connect
+// 6. Send real Solana transaction
+async function placeBetTransaction(parlaySummary) {
+    if (window.solana && window.solana.isPhantom) {
+        try {
+            const fromWallet = window.solana.publicKey;
+
+            const transaction = new solanaWeb3.Transaction().add(
+                solanaWeb3.SystemProgram.transfer({
+                    fromPubkey: fromWallet,
+                    toPubkey: new solanaWeb3.PublicKey(RECEIVER_WALLET),
+                    lamports: solanaWeb3.LAMPORTS_PER_SOL * 0.001
+                }),
+                new solanaWeb3.TransactionInstruction({
+                    keys: [],
+                    programId: new solanaWeb3.PublicKey('MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'),
+                    data: Buffer.from(parlaySummary)
+                })
+            );
+
+            transaction.feePayer = fromWallet;
+            const { blockhash } = await connection.getLatestBlockhash();
+            transaction.recentBlockhash = blockhash;
+
+            const signed = await window.solana.signTransaction(transaction);
+            const signature = await connection.sendRawTransaction(signed.serialize());
+            await connection.confirmTransaction(signature);
+
+            alert(`✅ Bet placed successfully!\nTx ID: ${signature}`);
+            window.open(`https://explorer.solana.com/tx/${signature}?cluster=devnet`, '_blank');
+
+        } catch (err) {
+            console.error('Transaction failed', err);
+            alert('❌ Bet failed or rejected.');
+        }
+    } else {
+        alert('Phantom Wallet not found.');
+    }
+}
+
+// 7. Wallet Connect
 document.getElementById('connect-wallet').addEventListener('click', async () => {
     if (window.solana && window.solana.isPhantom) {
         try {
             const resp = await window.solana.connect();
             document.getElementById('wallet-address').innerText = `Wallet: ${resp.publicKey.toString().slice(0, 6)}...${resp.publicKey.toString().slice(-4)}`;
         } catch (err) {
-            console.error('User rejected wallet connection');
+            console.error('Wallet connection rejected.');
         }
     } else {
         alert('Phantom Wallet not found.');
     }
 });
 
-// Start app
+// 8. Launch App
 fetchPrices();
